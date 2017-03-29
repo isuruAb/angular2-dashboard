@@ -1,0 +1,13 @@
+.model-box {
+    display: flex;
+    float: left;
+    margin: 10px;
+    min-height: 80px;
+}
+
+.example-icon {
+    display: block;
+    position: relative;
+    top: 12%;
+    right: 8%;
+}

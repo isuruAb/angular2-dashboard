@@ -1,0 +1,9 @@
+<md-card  *ngFor="let result of results$ | async; let i=index" (click)="clickModel(result.endPoint,result.properties,result.name)" class="model-box  flex-item" fxFlex="25%" fxFlex.md="35%" fxFlex.sm="45%" fxFlex.xs="95%"
+ >
+  <md-card-header>
+    <md-icon class="example-icon">{{result.icon}}</md-icon>
+    <md-card-title>{{result.name}}</md-card-title>
+    <md-card-subtitle>{{result.endPoint}}</md-card-subtitle>
+  </md-card-header>
+
+</md-card>
