@@ -1,24 +1,41 @@
-<div class="container ">
+<md-sidenav-container class="example-container">
 
-  <md-toolbar color="primary">
+  <md-sidenav #sidenav class="right-sidenav" mode="side" [ngClass]="{ 'right-sidenav-full': pinMenu, 'right-sidenav-pinned': !pinMenu  }">
+    <md-toolbar color="primary">
+      <md-menu #appMenu="mdMenu">
+        <button md-menu-item (click)="pinMenu==true?pinMenu=false:pinMenu=true">
+          <md-icon>list</md-icon>
+          <span>Stick Menu</span>
+        </button>
 
-    <button md-icon-button >
-  <md-icon>menu</md-icon>
-</button>
-    <span>Second Line</span>
-    <span class="example-spacer"></span>
-    <button md-icon-button >
-  <md-icon>more_vert</md-icon>
-</button>
+      </md-menu>
+      <button md-icon-button [mdMenuTriggerFor]="appMenu" >
+        <md-icon>apps</md-icon>
+      </button>
+      <span *ngIf="pinMenu">Dashboard 1.0</span>
 
+    </md-toolbar>
 
+  </md-sidenav>
 
-  </md-toolbar>
-  <div class="flex-container">
-    <router-outlet></router-outlet>
-    
+  <div class="container ">
 
+    <md-toolbar color="primary" class="top-toolbar">
+
+      <button md-icon-button (click)="sidenav.toggle()" *ngIf="pinMenu">
+        <md-icon>menu</md-icon>
+      </button>
+      <span>Second Line</span>
+      <span class="example-spacer"></span>
+      <button md-icon-button>
+        <md-icon>more_vert</md-icon>
+      </button>
+    </md-toolbar>
+
+    <div class="flex-container">
+      <router-outlet></router-outlet>
+    </div>
 
   </div>
 
-</div>
+</md-sidenav-container>
