@@ -8,6 +8,7 @@ import { element } from 'protractor';
 import { List } from 'linqts';
 import { Projection } from '../models/core/Projection';
 import { Model } from '../models/core/Model';
+import { DashboardPage } from '../../../e2e/app.po';
 
 
 @Component({
@@ -17,7 +18,6 @@ import { Model } from '../models/core/Model';
 })
 export class ModelDataComponent implements OnInit {
     selectedRows: number = 0;
-
     searchTerm: string = '';
     fromRow: number = 1;
     currentPage: number = 1;
@@ -31,6 +31,8 @@ export class ModelDataComponent implements OnInit {
     columns: ITdDataTableColumn[] = this.columnsArray;
     filteredData: any[] = this.data;
     filteredTotal: number = this.data.length;
+    fullDataCount: number = 0;
+    dataEndPoint: string;
 
     constructor(private _dataTableService: TdDataTableService,
         private modleService: ModelService,
@@ -51,6 +53,7 @@ export class ModelDataComponent implements OnInit {
             this.http.get(this.rootPath + name).map((res: Response) => res.json()).subscribe((m: Model) => {
                 //make column names and details
                 let projections = new List<Projection>(m.projections);
+
                 let dataTable: Projection = projections.Where(p => p.name === 'dataTable').First();
                 console.log('Data Table', dataTable);
                 if (dataTable) {
@@ -63,20 +66,12 @@ export class ModelDataComponent implements OnInit {
                     });
                 }
 
-                //check for projections
-                // const [urlOne, urlTwo, urlThree] = m.json().endPoint.split('/');
-
-                /*         this.http.get("api/profile/"+urlThree)
-                         if(){
-         
-                         }*/
-
-
-
+                this.dataEndPoint = m.endPoint;
                 this.http.get(m.endPoint).subscribe(endData => {
 
                     let dataArray: Array<any> = endData.json()._embedded[Object.keys(endData.json()._embedded)[0]];
-
+                    this.fullDataCount = endData.json().page.totalElements;
+                    console.log("this.fullDataCount", this.fullDataCount);
                     let i = 1;
                     dataArray.forEach(element => {
                         element.id = i;
@@ -89,15 +84,12 @@ export class ModelDataComponent implements OnInit {
             });
 
 
-        });
+        });//End this.activatedRoute.params.subscribe
 
-        /*        //make column names and details
-                this.modleService.modelPropertiesArray.forEach(element => {
-                    this.columnsArray.push({ name: element.name, label: element.name });
-                });*/
 
         this.filter();
-    }
+    }//End  ngOnInit()
+
 
     sort(sortEvent: ITdDataTableSortChangeEvent): void {
         this.sortBy = sortEvent.name;
@@ -111,16 +103,45 @@ export class ModelDataComponent implements OnInit {
     }
 
     page(pagingEvent: IPageChangeEvent): void {
+        console.log(pagingEvent);
         this.fromRow = pagingEvent.fromRow;
+        console.log("this.fromRow", this.fromRow);
         this.currentPage = pagingEvent.page;
+        console.log("this.currentPage", this.currentPage);
         this.pageSize = pagingEvent.pageSize;
+        console.log("this.pageSize", this.pageSize);
+
+        //check for data we have and fetch if request
+        if (this.data.length < (pagingEvent.page * pagingEvent.pageSize) &&
+            (pagingEvent.page * pagingEvent.pageSize) < this.filteredTotal) {
+            console.log(this.dataEndPoint + "?page=" + (this.currentPage--) + "&size=" + this.pageSize);
+            this.http.get(this.dataEndPoint + "?page=" + (this.currentPage--) + "&size=" + this.pageSize)
+            .subscribe(nData => {
+
+                let nDataArray: Array<any> = nData.json()._embedded[Object.keys(nData.json()._embedded)[0]];
+
+                let i = this.fromRow;
+
+                nDataArray.forEach(element => {
+                    element.id = i;
+
+                    //add data to table
+                    this.dataTableData.push(element);
+                   
+                    i++;
+                });//End nDataArray.forEach
+                 console.log("dataTableData",this.dataTableData);
+            })
+
+        } //end if 
         this.filter();
     }
 
     filter(): void {
         let newData: any[] = this.data;
         newData = this._dataTableService.filterData(newData, this.searchTerm, true);
-        this.filteredTotal = newData.length;
+        this.filteredTotal = this.fullDataCount;
+
         newData = this._dataTableService.sortData(newData, this.sortBy, this.sortOrder);
         newData = this._dataTableService.pageData(newData, this.fromRow, this.currentPage * this.pageSize);
         this.filteredData = newData;
