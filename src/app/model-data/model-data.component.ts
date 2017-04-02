@@ -50,38 +50,45 @@ export class ModelDataComponent implements OnInit {
         this.activatedRoute.params.subscribe((params: Params) => {
             let name = params['name'];
 
-            this.http.get(this.rootPath + name).map((res: Response) => res.json()).subscribe((m: Model) => {
-                //make column names and details
-                let projections = new List<Projection>(m.projections);
-
-                let dataTable: Projection = projections.Where(p => p.name === 'dataTable').First();
-                console.log('Data Table', dataTable);
-                if (dataTable) {
-                    dataTable.properties.forEach(k => {
-                        this.columnsArray.push({ name: k.name, label: k.name });
-                    });
-                } else {
-                    m.properties.forEach(k => {
-                        this.columnsArray.push({ name: k.name, label: k.name });
-                    });
-                }
-
-                this.dataEndPoint = m.endPoint;
-                this.http.get(m.endPoint).subscribe(endData => {
-
-                    let dataArray: Array<any> = endData.json()._embedded[Object.keys(endData.json()._embedded)[0]];
-                    this.fullDataCount = endData.json().page.totalElements;
-                    console.log("this.fullDataCount", this.fullDataCount);
-                    let i = 1;
-                    dataArray.forEach(element => {
-                        element.id = i;
-                        //add data to table
-                        this.dataTableData.push(element);
-                        i++;
-                    });
-                })
-
-            });
+            this.modleService.getModelData(name, this.rootPath, this.dataTableData);
+            //this.dataTableData = this.modleService.getModelData(name, this.rootPath, this.dataTableData).data;
+           // this.columnsArray = this.modleService.getModelData(name, this.rootPath, this.dataTableData).columnsArray;
+            /*
+                        this.http.get(this.rootPath + name).map((res: Response) => res.json()).subscribe((m: Model) => {
+            
+                            //check whether there is a projejction call dataTable
+                            if (m.projections) {
+                                let projections = new List<Projection>(m.projections);
+                                let dataTable = projections.Where(p => p.name == 'dataTable').First();
+                                if (dataTable) {
+                                    dataTable.properties.forEach(k => {
+                                        this.columnsArray.push({ name: k.name, label: k.name });
+                                    });
+                                }
+            
+                            } else {
+                                m.properties.forEach(k => {
+                                    this.columnsArray.push({ name: k.name, label: k.name });
+                                });
+                            }
+            
+                            console.log(m.endPoint);
+                            this.dataEndPoint = m.endPoint;
+                            this.http.get(m.endPoint).subscribe(endData => {
+            
+                                let dataArray: Array<any> = endData.json()._embedded[Object.keys(endData.json()._embedded)[0]];
+                                this.fullDataCount = endData.json().page.totalElements;
+                                console.log("this.fullDataCount", this.fullDataCount);
+                                let i = 1;
+                                dataArray.forEach(element => {
+                                    element.id = i;
+                                    //add data to table
+                                    this.dataTableData.push(element);
+                                    i++;
+                                });
+                            })
+            
+                        });*/
 
 
         });//End this.activatedRoute.params.subscribe
@@ -116,24 +123,25 @@ export class ModelDataComponent implements OnInit {
             (pagingEvent.page * pagingEvent.pageSize) < this.filteredTotal) {
             console.log(this.dataEndPoint + "?page=" + (this.currentPage--) + "&size=" + this.pageSize);
             this.http.get(this.dataEndPoint + "?page=" + (this.currentPage--) + "&size=" + this.pageSize)
-            .subscribe(nData => {
+                .subscribe(nData => {
 
-                let nDataArray: Array<any> = nData.json()._embedded[Object.keys(nData.json()._embedded)[0]];
+                    let nDataArray: Array<any> = nData.json()._embedded[Object.keys(nData.json()._embedded)[0]];
 
-                let i = this.fromRow;
+                    let i = this.fromRow;
 
-                nDataArray.forEach(element => {
-                    element.id = i;
+                    nDataArray.forEach(element => {
+                        element.id = i;
 
-                    //add data to table
-                    this.dataTableData.push(element);
-                   
-                    i++;
-                });//End nDataArray.forEach
-                 console.log("dataTableData",this.dataTableData);
-            })
+                        //add data to table
+                        this.dataTableData.push(element);
+
+                        i++;
+                    });//End nDataArray.forEach
+                    console.log("dataTableData", this.dataTableData);
+                })
 
         } //end if 
+        this.data = this.dataTableData;
         this.filter();
     }
 
