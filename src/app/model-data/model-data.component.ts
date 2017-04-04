@@ -1,14 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEvent, ITdDataTableColumn } from '@covalent/core';
 import { IPageChangeEvent } from '@covalent/core';
 import { ModelService } from '../all-models/model.service';
 import { ActivatedRoute, Params } from '@angular/router';
-import { Http, Response } from '@angular/http';
+import { Http, Response, URLSearchParams } from '@angular/http';
 import { element } from 'protractor';
 import { List } from 'linqts';
 import { Projection } from '../models/core/Projection';
 import { Model } from '../models/core/Model';
-
+import { DashboardPage } from '../../../e2e/app.po';
+import { GetRequest } from '../models/core/GetRequest';
 
 @Component({
     selector: 'app-model-data',
@@ -17,112 +18,84 @@ import { Model } from '../models/core/Model';
 })
 export class ModelDataComponent implements OnInit {
     selectedRows: number = 0;
-
     searchTerm: string = '';
     fromRow: number = 1;
     currentPage: number = 1;
     pageSize: number = 5;
     sortBy: string = 'id';
     sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Descending;
-    columnsArray: Array<ITdDataTableColumn> = [{ name: 'id', label: 'ID #', tooltip: 'ID' }];
-    dataTableData: Array<any> = [];
     rootPath = 'api/model/';
-    data: any[] = this.dataTableData;
-    columns: ITdDataTableColumn[] = this.columnsArray;
-    filteredData: any[] = this.data;
-    filteredTotal: number = this.data.length;
+    currentData: any[] = [];
+    columns: ITdDataTableColumn[] = [{ name: 'id', label: 'ID #', tooltip: 'ID' }];
+    filteredData: any[] = [];
+    fullDataCount: number = 0;
+    dataEndPoint: string;
+    size = 50;
+    totalElements = 0;
+    searchParams: URLSearchParams = new URLSearchParams();
+    modelName = null;
+
+    @ViewChild('dataTable') dataTable: any;
 
     constructor(private _dataTableService: TdDataTableService,
         private modleService: ModelService,
         private activatedRoute: ActivatedRoute,
         private http: Http) {
 
-        this.data = this.dataTableData;
-        this.columns = this.columnsArray;
-        console.log("this.dataTableData", this.dataTableData);
-
-        console.log(" this.columnsArray", this.columnsArray);
     } // End constructor 
+
+    doGet() {
+        this.modleService.getModelData(this.modelName, null, this.searchParams).subscribe(getRequest => {
+            // Set page options
+            this.pageSize = getRequest.results.page.size;
+            this.totalElements = getRequest.results.page.totalElements;
+            // Get data
+            this.currentData = getRequest.results._embedded[Object.keys(getRequest.results._embedded)[0]];
+            // Set columns
+            this.columns = getRequest.columns;
+            // Show filtered data;
+            this.filter();
+        });
+    }// End doGet()
 
     ngOnInit(): void {
         this.activatedRoute.params.subscribe((params: Params) => {
-            let name = params['name'];
+            // Get the model Name in URL.
+            this.modelName = params['name'];
+            // initial search params
+            this.searchParams.set('size', this.size + '');
+            this.doGet();
+        });//End this.activatedRoute.params.subscribe
 
-            this.http.get(this.rootPath + name).map((res: Response) => res.json()).subscribe((m: Model) => {
-                //make column names and details
-                let projections = new List<Projection>(m.projections);
-                let dataTable: Projection = projections.Where(p => p.name === 'dataTable').First();
-                console.log('Data Table', dataTable);
-                if (dataTable) {
-                    dataTable.properties.forEach(k => {
-                        this.columnsArray.push({ name: k.name, label: k.name });
-                    });
-                } else {
-                    m.properties.forEach(k => {
-                        this.columnsArray.push({ name: k.name, label: k.name });
-                    });
-                }
+        //this.filter();
+    }//End  ngOnInit()
 
-                //check for projections
-                // const [urlOne, urlTwo, urlThree] = m.json().endPoint.split('/');
-
-                /*         this.http.get("api/profile/"+urlThree)
-                         if(){
-         
-                         }*/
-
-
-
-                this.http.get(m.endPoint).subscribe(endData => {
-
-                    let dataArray: Array<any> = endData.json()._embedded[Object.keys(endData.json()._embedded)[0]];
-
-                    let i = 1;
-                    dataArray.forEach(element => {
-                        element.id = i;
-                        //add data to table
-                        this.dataTableData.push(element);
-                        i++;
-                    });
-                })
-
-            });
-
-
-        });
-
-        /*        //make column names and details
-                this.modleService.modelPropertiesArray.forEach(element => {
-                    this.columnsArray.push({ name: element.name, label: element.name });
-                });*/
-
-        this.filter();
-    }
 
     sort(sortEvent: ITdDataTableSortChangeEvent): void {
         this.sortBy = sortEvent.name;
         this.sortOrder = sortEvent.order;
-        this.filter();
-    }
+        // this.filter();
+    };
 
     search(searchTerm: string): void {
-        this.searchTerm = searchTerm;
-        this.filter();
-    }
+        this //this.filteredTotal = this.totalElements;
+.searchTerm = searchTerm;
+        //this.filter();
+    };
 
     page(pagingEvent: IPageChangeEvent): void {
-        this.fromRow = pagingEvent.fromRow;
-        this.currentPage = pagingEvent.page;
-        this.pageSize = pagingEvent.pageSize;
-        this.filter();
-    }
+        console.log(pagingEvent);
+        this.searchParams.set('page', (pagingEvent.page - 1) + '');
+        this.doGet();
+    }; // End page(pagingEvent: IPageChangeEvent)
 
     filter(): void {
-        let newData: any[] = this.data;
+        // Copy current data
+        let newData: any[] = this.currentData;
+
         newData = this._dataTableService.filterData(newData, this.searchTerm, true);
-        this.filteredTotal = newData.length;
+       
         newData = this._dataTableService.sortData(newData, this.sortBy, this.sortOrder);
-        newData = this._dataTableService.pageData(newData, this.fromRow, this.currentPage * this.pageSize);
-        this.filteredData = newData;
-    }
+        this.filteredData = this._dataTableService.pageData(newData, this.fromRow, this.currentPage * this.pageSize);
+    } // End filter()
 }
