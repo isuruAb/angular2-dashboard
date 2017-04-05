@@ -30,7 +30,7 @@ export class ModelDataComponent implements OnInit {
     filteredData: any[] = [];
     fullDataCount: number = 0;
     dataEndPoint: string;
-    size = 50;
+    size = 10;
     totalElements = 0;
     searchParams: URLSearchParams = new URLSearchParams();
     modelName = null;
@@ -78,9 +78,9 @@ export class ModelDataComponent implements OnInit {
     };
 
     search(searchTerm: string): void {
-        this //this.filteredTotal = this.totalElements;
-.searchTerm = searchTerm;
-        //this.filter();
+
+            this.searchTerm = searchTerm;
+        this.filter();
     };
 
     page(pagingEvent: IPageChangeEvent): void {
@@ -94,7 +94,7 @@ export class ModelDataComponent implements OnInit {
         let newData: any[] = this.currentData;
 
         newData = this._dataTableService.filterData(newData, this.searchTerm, true);
-       
+
         newData = this._dataTableService.sortData(newData, this.sortBy, this.sortOrder);
         this.filteredData = this._dataTableService.pageData(newData, this.fromRow, this.currentPage * this.pageSize);
     } // End filter()
