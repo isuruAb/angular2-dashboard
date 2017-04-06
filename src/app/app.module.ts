@@ -12,11 +12,13 @@ import { FlexLayoutModule } from "@angular/flex-layout";
 import { Angular2RoutingModule } from './app.routing';
 import { ModelDataComponent } from './model-data/model-data.component';
 import { ModelService } from './all-models/model.service';
+import { ModelEditComponent } from './model-edit/model-edit.component';
 @NgModule({
   declarations: [
     AppComponent,
     AllModelsComponent,
-    ModelDataComponent
+    ModelDataComponent,
+    ModelEditComponent
   ],
   imports: [
     CovalentCoreModule,
