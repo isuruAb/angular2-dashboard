@@ -25,17 +25,41 @@ export class ModelService {
     return this.http.get(this.modelsUrl);
   } // End getModels(): Observable<any>
 
-  getModel(name: string): Observable<Model> {
-    return this.http.get(this.modelsUrl + name).map((res: Response) => res.json());
+  getModel(name: string, customModel: string): Observable<Model> {
+
+    if (customModel) {
+      return this.http.get(this.modelsUrl + customModel).map((res: Response) => res.json());
+
+    }
+    else {
+      return this.http.get(this.modelsUrl + name).map((res: Response) => res.json());
+    }
+
+
   } // End getModel()
 
-  _getModelData(get: GetRequest,searchParams:URLSearchParams): Observable<GetRequest> {
-    return this.http.get(get.model.endPoint, { search: searchParams})
-      .map((res: Response) => res.json())
-      .map(d => {
-        get.results = d;
-        return get
-      });
+  _getModelData(get: GetRequest, searchParams: URLSearchParams, customEndPoint: string): Observable<GetRequest> {
+
+    //when retrieving data from custom endpoint
+    if (customEndPoint) {
+      return this.http.get(customEndPoint)
+        .map((res: Response) => res.json())
+        .map(d => {
+          get.results = d;
+          return get
+        });
+    }
+    else {
+      return this.http.get(get.model.endPoint, { search: searchParams })
+        .map((res: Response) => res.json())
+        .map(d => {
+          get.results = d;
+          return get
+        });
+    }
+
+
+
   } // End _getModelData()
 
   navigateToEachModel(modelEndPoint: string, modelProperties: Array<any>, name: string) {
@@ -57,8 +81,10 @@ export class ModelService {
         projection.properties.forEach(element => {
           get.addColumn(element.name);
         });
+        get.addColumn('edit');
+        console.log("get", get);
       }
-      
+
     } //end if (m.projections)
     else {
       // if projections are not defined
@@ -66,6 +92,7 @@ export class ModelService {
       propertiesArray.forEach(element => {
         get.addColumn(element.name);
       });
+      get.addColumn('edit');
     }
 
     let urlParams = new URLSearchParams();
@@ -74,15 +101,23 @@ export class ModelService {
     });
 
     get.params = urlParams;
-    
+
     return Observable.of(get);
   } // End _preRequest()
 
-  getModelData(name: string, params: Map<string, string>, searchParams:URLSearchParams) :Observable<GetRequest>{
-    //model => this._getModelData(model, params)
-    return this.getModel(name)
+  getModelData(name: string, params: Map<string, string>,
+    searchParams: URLSearchParams,
+    customEndPoint: string,
+    customModel: string): Observable<GetRequest> {
+
+    return this.getModel(name, customModel)
       .switchMap(model => this._preRequest(model, params))
-      .switchMap(d => this._getModelData(d,searchParams));
+      .switchMap(d => this._getModelData(d, searchParams, customEndPoint));
+
+    //model => this._getModelData(model, params)
+    /*    return this.getModel(name)
+          .switchMap(model => this._preRequest(model, params))
+          .switchMap(d => this._getModelData(d, searchParams));*/
   } //End getModelData().
 
 }

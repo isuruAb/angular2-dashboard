@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Input } from '@angular/core';
 import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEvent, ITdDataTableColumn } from '@covalent/core';
 import { IPageChangeEvent } from '@covalent/core';
 import { ModelService } from '../all-models/model.service';
@@ -34,6 +34,8 @@ export class ModelDataComponent implements OnInit {
     totalElements = 0;
     searchParams: URLSearchParams = new URLSearchParams();
     modelName = null;
+    @Input() customEndPoint: string
+    @Input() customModel: string
 
     @ViewChild('dataTable') dataTable: any;
 
@@ -44,49 +46,69 @@ export class ModelDataComponent implements OnInit {
 
     } // End constructor 
 
+    edit(item) {
+        console.log(item);
+
+    }
+
     doGet() {
-        this.modleService.getModelData(this.modelName, null, this.searchParams).subscribe(getRequest => {
-            // Set page options
-            this.pageSize = getRequest.results.page.size;
-            this.totalElements = getRequest.results.page.totalElements;
+        this.modleService.getModelData(this.modelName, null, this.searchParams, this.customEndPoint, this.customModel).subscribe(getRequest => {
+            if (getRequest.results.page) {
+                // Set page options
+                this.pageSize = getRequest.results.page.size;
+
+                this.totalElements = getRequest.results.page.totalElements;
+            }
+
             // Get data
-            this.currentData = getRequest.results._embedded[Object.keys(getRequest.results._embedded)[0]];
+            let dataArray=[];
+            getRequest.results._embedded[Object.keys(getRequest.results._embedded)[0]].forEach(element => {
+                element['edit'] = element._links.self.href;
+                dataArray.push(element);
+            });
+            this.currentData = dataArray;
+
             // Set columns
             this.columns = getRequest.columns;
+            console.log(getRequest);
             // Show filtered data;
             this.filter();
         });
     }// End doGet()
 
     ngOnInit(): void {
+
         this.activatedRoute.params.subscribe((params: Params) => {
             // Get the model Name in URL.
             this.modelName = params['name'];
+
             // initial search params
             this.searchParams.set('size', this.size + '');
             this.doGet();
         });//End this.activatedRoute.params.subscribe
 
-        //this.filter();
+        this.filter();
     }//End  ngOnInit()
 
 
     sort(sortEvent: ITdDataTableSortChangeEvent): void {
         this.sortBy = sortEvent.name;
         this.sortOrder = sortEvent.order;
-        // this.filter();
-    };
+        this.filter();
+    };//End sort(sortEvent: ITdDataTableSortChangeEvent)
 
     search(searchTerm: string): void {
 
-            this.searchTerm = searchTerm;
+        this.searchTerm = searchTerm;
         this.filter();
-    };
+    };// End search(searchTerm: string)
 
     page(pagingEvent: IPageChangeEvent): void {
         console.log(pagingEvent);
         this.searchParams.set('page', (pagingEvent.page - 1) + '');
+        this.searchParams.set('size', pagingEvent.pageSize + '');
         this.doGet();
+    //    this.filter();
     }; // End page(pagingEvent: IPageChangeEvent)
 
     filter(): void {
