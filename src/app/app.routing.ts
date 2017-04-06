@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AllModelsComponent } from './all-models/all-models.component';
 import { ModelDataComponent } from './model-data/model-data.component';
+import { ModelEditComponent } from './model-edit/model-edit.component';
 
 const routes: Routes = [
   {
@@ -16,6 +17,9 @@ const routes: Routes = [
   },
   {
     path: 'Models/:name/:id', component: ModelDataComponent
+  },
+  {
+    path: 'Models/edit/:name/:item', component: ModelEditComponent // Edit Model data route
   }
 
 ];

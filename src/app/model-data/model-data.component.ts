@@ -10,6 +10,7 @@ import { Projection } from '../models/core/Projection';
 import { Model } from '../models/core/Model';
 import { DashboardPage } from '../../../e2e/app.po';
 import { GetRequest } from '../models/core/GetRequest';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-model-data',
@@ -24,7 +25,6 @@ export class ModelDataComponent implements OnInit {
     pageSize: number = 5;
     sortBy: string = 'id';
     sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Descending;
-    rootPath = 'api/model/';
     currentData: any[] = [];
     columns: ITdDataTableColumn[] = [{ name: 'id', label: 'ID #', tooltip: 'ID' }];
     filteredData: any[] = [];
@@ -34,49 +34,58 @@ export class ModelDataComponent implements OnInit {
     totalElements = 0;
     searchParams: URLSearchParams = new URLSearchParams();
     modelName = null;
-    @Input() customEndPoint: string
-    @Input() customModel: string
+
+    @Input('customEndPoint') customEndPoint: string
+    @Input('customModel') customModel: string
 
     @ViewChild('dataTable') dataTable: any;
 
     constructor(private _dataTableService: TdDataTableService,
         private modleService: ModelService,
         private activatedRoute: ActivatedRoute,
+        private router: Router,
         private http: Http) {
 
     } // End constructor 
 
     edit(item) {
-        console.log(item);
+        //console.log(item);
+        this.router.navigate(['Models/edit', this.modelName, item]);
 
     }
 
     doGet() {
-        this.modleService.getModelData(this.modelName, null, this.searchParams, this.customEndPoint, this.customModel).subscribe(getRequest => {
-            if (getRequest.results.page) {
-                // Set page options
-                this.pageSize = getRequest.results.page.size;
+        //  console.log("this.customEndPoint",this.customEndPoint);
 
-                this.totalElements = getRequest.results.page.totalElements;
-            }
+        this.modleService.getModelData(this.modelName,
+            null,
+            this.searchParams,
+            this.customEndPoint,
+            this.customModel).subscribe(getRequest => {
+                if (getRequest.results.page) {
+                    // Set page options
+                    this.pageSize = getRequest.results.page.size;
 
-            // Get data
-            let dataArray=[];
-            getRequest.results._embedded[Object.keys(getRequest.results._embedded)[0]].forEach(element => {
-                element['edit'] = element._links.self.href;
-                dataArray.push(element);
+                    this.totalElements = getRequest.results.page.totalElements;
+                }
+
+                // Get data
+                let dataArray = [];
+                getRequest.results._embedded[Object.keys(getRequest.results._embedded)[0]].forEach(element => {
+                    element['edit'] = element._links.self.href;
+                    dataArray.push(element);
+                });
+                this.currentData = dataArray;
+
+                // Set columns
+                this.columns = getRequest.columns;
+                // Show filtered data;
+                this.filter();
             });
-            this.currentData = dataArray;
-
-            // Set columns
-            this.columns = getRequest.columns;
-            console.log(getRequest);
-            // Show filtered data;
-            this.filter();
-        });
     }// End doGet()
 
     ngOnInit(): void {
+        console.log("customModel", this.customModel);
 
         this.activatedRoute.params.subscribe((params: Params) => {
             // Get the model Name in URL.
@@ -104,11 +113,11 @@ export class ModelDataComponent implements OnInit {
     };// End search(searchTerm: string)
 
     page(pagingEvent: IPageChangeEvent): void {
-        console.log(pagingEvent);
+        // console.log(pagingEvent);
         this.searchParams.set('page', (pagingEvent.page - 1) + '');
         this.searchParams.set('size', pagingEvent.pageSize + '');
         this.doGet();
-    //    this.filter();
+        this.filter();
     }; // End page(pagingEvent: IPageChangeEvent)
 
     filter(): void {

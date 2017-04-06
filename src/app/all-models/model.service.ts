@@ -82,7 +82,7 @@ export class ModelService {
           get.addColumn(element.name);
         });
         get.addColumn('edit');
-        console.log("get", get);
+      //  console.log("get", get);
       }
 
     } //end if (m.projections)
