@@ -5,6 +5,7 @@
 .example-spacer {
   flex: 1 1 auto;
 }
+
 .example-container {
   border: 1px solid rgba(0, 0, 0, 0.5);
 }
@@ -14,17 +15,24 @@
   height: 100%;
   align-items: center;
   justify-content: center;
-
 }
-.right-sidenav{
+
+.right-sidenav {
   background: #311B92;
 }
-.right-sidenav-full{
-width: 20%;
+
+.right-sidenav-full {
+  width: 20%;
 }
-.right-sidenav-pinned{
-width: 6%;
+
+.right-sidenav-pinned {
+  width: 50px;
 }
-.top-toolbar{
+
+.top-toolbar {
   z-index: 999;
+}
+
+md-toolbar [md-icon-button] {
+  margin-left: -13px;
 }

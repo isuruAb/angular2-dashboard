@@ -13,6 +13,9 @@ const routes: Routes = [
   },
   {
     path: 'Models/:name', component: ModelDataComponent
+  },
+  {
+    path: 'Models/:name/:id', component: ModelDataComponent
   }
 
 ];
