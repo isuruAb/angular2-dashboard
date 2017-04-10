@@ -34,9 +34,10 @@ export class ModelDataComponent implements OnInit {
     totalElements = 0;
     searchParams: URLSearchParams = new URLSearchParams();
     modelName = null;
+    params: Object;
+    @Input('customEndPoint') customEndPoint: string;
+    @Input('customModel') customModel: string;
 
-    @Input('customEndPoint') customEndPoint: string
-    @Input('customModel') customModel: string
 
     @ViewChild('dataTable') dataTable: any;
 
@@ -50,7 +51,16 @@ export class ModelDataComponent implements OnInit {
 
     edit(item) {
         //console.log(item);
-        this.router.navigate(['Models/edit', this.modelName, item]);
+
+        if (this.params['item']) {
+            console.log("itemitemitemitemitemitemitemitemitem",item);
+            this.router.navigate(['Models/edit', this.customModel, item]); //problem here 
+
+        } else {
+            this.router.navigate(['Models/edit', this.modelName, item]);
+
+        }
+
 
     }
 
@@ -77,6 +87,7 @@ export class ModelDataComponent implements OnInit {
                 });
                 this.currentData = dataArray;
 
+
                 // Set columns
                 this.columns = getRequest.columns;
                 // Show filtered data;
@@ -85,11 +96,12 @@ export class ModelDataComponent implements OnInit {
     }// End doGet()
 
     ngOnInit(): void {
-        console.log("customModel", this.customModel);
 
         this.activatedRoute.params.subscribe((params: Params) => {
+            this.params = params; //get all params to  this.params
             // Get the model Name in URL.
             this.modelName = params['name'];
+
 
             // initial search params
             this.searchParams.set('size', this.size + '');

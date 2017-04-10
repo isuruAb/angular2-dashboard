@@ -1,4 +1,4 @@
-<md-tab-group #tabgroup (selectChange)="doSomething($event)">
+<md-tab-group #tabgroup (selectChange)="switchTab($event)">
   <md-tab label="basic">
     <md-card class="demo-card demo-basic" >
       <md-card-content>
@@ -32,7 +32,7 @@
   </md-tab>
   <md-tab *ngFor="let tab of tabs" label="{{tab.name}}">
     <md-card class="demo-card demo-basic">
-      <app-model-data [customEndPoint]="tab.itemSelf" [customModel]="tab.reference"></app-model-data>
+      <app-model-data [customEndPoint]="tab.itemSelf" [customModel]="tab.reference" ></app-model-data>
     </md-card>
 
   </md-tab>
