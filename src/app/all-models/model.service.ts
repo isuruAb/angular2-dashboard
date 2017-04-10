@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Router, Params } from '@angular/router';
-import { Http, Response, URLSearchParams } from '@angular/http';
+import { Http, Response, URLSearchParams, RequestOptions } from '@angular/http';
 import { Model } from '../models/core/Model';
 import { List } from 'linqts';
 import { Projection } from '../models/core/Projection';
@@ -82,7 +82,7 @@ export class ModelService {
           get.addColumn(element.name);
         });
         get.addColumn('edit');
-      //  console.log("get", get);
+        //  console.log("get", get);
       }
 
     } //end if (m.projections)
@@ -105,6 +105,7 @@ export class ModelService {
     return Observable.of(get);
   } // End _preRequest()
 
+//Tab services here
   getModelData(name: string, params: Map<string, string>,
     searchParams: URLSearchParams,
     customEndPoint: string,
@@ -114,10 +115,16 @@ export class ModelService {
       .switchMap(model => this._preRequest(model, params))
       .switchMap(d => this._getModelData(d, searchParams, customEndPoint));
 
-    //model => this._getModelData(model, params)
-    /*    return this.getModel(name)
-          .switchMap(model => this._preRequest(model, params))
-          .switchMap(d => this._getModelData(d, searchParams));*/
   } //End getModelData().
+
+  getTabData(dataLink) {
+    return this.http.get(dataLink).map(m=>m.json())
+  }//End getTabData()
+
+  saveTabData(patchUrl:string,requestBody:string,reqquestOptions:RequestOptions){
+    return this.http.patch(patchUrl, requestBody, reqquestOptions)
+      .map((res: Response) => res.json())
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error'));
+  }
 
 }
