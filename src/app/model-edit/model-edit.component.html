@@ -1,6 +1,7 @@
 <md-tab-group #tabgroup (selectChange)="switchTab($event)">
   <md-tab label="basic">
     <md-card class="demo-card demo-basic" >
+
       <md-card-content>
         <div fxLayout="column" class="content" *ngFor="let property of modelDataTypes">
           <div fxFlex>
@@ -8,29 +9,34 @@
               <input mdInput placeholder="{{property.name}}" [(ngModel)]="tabData[property.name]">
             </md-input-container>
           </div>
-
           <div fxFlex>
             <md-input-container *ngIf="property.dataType === 'email' && property.ignore">
               <input mdInput placeholder="{{property.name}}" type="email" [(ngModel)]="tabData[property.name]">
             </md-input-container>
           </div>
-
           <div fxFlex>
             <md-input-container *ngIf="property.dataType === 'timestamp' && property.ignore">
               <input mdInput placeholder="{{property.name}}" type="date" [(ngModel)]="tabData[property.name]">
             </md-input-container>
           </div>
-
-          <div *ngIf="property.dataType === 'boolean' && property.ignore" fxFlex>
-            <md-slide-toggle [checked]="tabData[property.name]" [(ngModel)]="tabData[property.name]">{{property.name}}</md-slide-toggle>
+          <div *ngIf="property.dataType === 'boolean' && property.ignore" class="row">
+            <div class="col-md-4">
+              {{property.name}}
+            </div>
+            <div class="col-md-4">
+              <md-slide-toggle [checked]="tabData[property.name]" [(ngModel)]="tabData[property.name]"></md-slide-toggle>
+            </div>
           </div>
         </div>
-        <button md-fab (click)="saveModel(tabData)"><md-icon>save</md-icon></button>
+        <div align="right">
+          <button md-fab (click)="saveModel(tabData)"><md-icon>save</md-icon></button>
+        </div>
+
       </md-card-content>
     </md-card>
 
   </md-tab>
-  <md-tab *ngFor="let tab of tabs" label="{{tab.name}}">
+  <md-tab *ngFor="let tab of tabs" label="{{tab.name.toUpperCase()}}">
     <md-card class="demo-card demo-basic">
       <app-model-data [customEndPoint]="tab.itemSelf" [customModel]="tab.reference" ></app-model-data>
     </md-card>
