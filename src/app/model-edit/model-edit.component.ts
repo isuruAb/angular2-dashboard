@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Http, Response, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
-import { ModelDataType } from '../models/core/modelDataType';
+import { FieldDataType } from '../models/core/FieldDataType';
 import { ModelService } from '../all-models/model.service';
 
 @Component({
@@ -15,7 +15,7 @@ export class ModelEditComponent implements OnInit {
   baseUrl: string = 'api/model/'
   private arrayOfKeys;
   private modelProperties: Array<any>;
-  private modelDataTypes: ModelDataType[] = [];
+  private fieldDataTypes: FieldDataType[] = [];
   private tabs: any[] = [];
   private tabData: any = {};
   private propertyVisible: boolean = true;
@@ -25,16 +25,16 @@ export class ModelEditComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private http: Http,
     private modleService: ModelService
-  ) { }
+  ) {
+    console.log("add new item 1s");
+
+  }
 
   ngOnInit(): void {
-
+    console.log("activatedRoute",this.activatedRoute);
     this.activatedRoute.params.subscribe((params: Params) => {
       let name = params['name'];
       let item = params['item'];
-      //console.log(item);
-//console.log("this.baseUrl + namethis.baseUrl + namethis.baseUrl + name",this.baseUrl + name);
-
 
       this.http.get(this.baseUrl + name).subscribe((res: Response) => {
         let results = res.json();
@@ -55,9 +55,12 @@ export class ModelEditComponent implements OnInit {
           // console.log(results.properties[property]);
           //console.log(results);
 
-          this.modelDataTypes.push(new ModelDataType(results.properties[property].name,
-           results.properties[property].type,
-            this.propertyVisible));
+          let modelData: FieldDataType = new FieldDataType();
+          modelData.name = results.properties[property].name;
+          modelData.dataType = results.properties[property].type;
+          modelData.ignore = this.propertyVisible;
+
+          this.fieldDataTypes.push(modelData);
         } //End for (let property in results.properties)
 
       });
@@ -65,6 +68,9 @@ export class ModelEditComponent implements OnInit {
 
       this.modleService.getTabData(item).subscribe(data => {
         this.modelData = data;
+/*        if(){
+
+        }*/
         this.tabData = this.modelData;
       });
 
@@ -101,9 +107,6 @@ export class ModelEditComponent implements OnInit {
       .subscribe();
   } //End saveModel(tabData: any): void
 
-  /*  getEndPointdata(endPoint: string) {
-      console.log(endPoint);
-      return this.http.get(endPoint).map((res: Response) => res.json())
-    } // End getEndPointdata(endPoint: string)*/
+
 
 }

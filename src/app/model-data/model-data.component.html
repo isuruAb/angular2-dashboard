@@ -6,6 +6,8 @@
     <span *ngIf="(selectable && !selectedRows.length) || !selectable" class="md-title">Details here</span>
   <span *ngIf="selectedRows.length && selectable" class="md-body-1">0 item(s) selected</span>
   </span>
+  <button md-icon-button (click)="add()"><md-icon>playlist_add</md-icon></button>
+
   <td-search-box #searchBox backIcon="arrow_back" class="push-right-sm" placeholder="Search here" (searchDebounce)="search($event)"
     flex>
   </td-search-box>
