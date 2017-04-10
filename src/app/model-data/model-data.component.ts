@@ -53,7 +53,7 @@ export class ModelDataComponent implements OnInit {
         //console.log(item);
 
         if (this.params['item']) {
-            console.log("itemitemitemitemitemitemitemitemitem",item);
+            console.log("itemitemitemitemitemitemitemitemitem", item);
             this.router.navigate(['Models/edit', this.customModel, item]); //problem here 
 
         } else {
@@ -62,7 +62,18 @@ export class ModelDataComponent implements OnInit {
         }
 
 
-    }
+    } //edit(item)  Ends
+
+    add() {
+        
+        if (this.params['item']) {
+            this.router.navigate(['Models/add', this.customModel]); 
+
+        } else {
+            this.router.navigate(['Models/add', this.modelName]);
+        }
+
+    } //add() Ends
 
     doGet() {
         //  console.log("this.customEndPoint",this.customEndPoint);

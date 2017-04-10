@@ -2,7 +2,7 @@
   <md-tab label="basic">
     <md-card class="demo-card demo-basic" >
       <md-card-content>
-        <div fxLayout="column" class="content" *ngFor="let property of modelDataTypes">
+        <div fxLayout="column" class="content" *ngFor="let property of fieldDataTypes">
           <div fxFlex>
             <md-input-container *ngIf="property.dataType === 'text' && property.ignore">
               <input mdInput placeholder="{{property.name}}" [(ngModel)]="tabData[property.name]">
