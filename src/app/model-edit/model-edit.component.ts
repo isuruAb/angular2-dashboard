@@ -26,12 +26,12 @@ export class ModelEditComponent implements OnInit {
     private http: Http,
     private modleService: ModelService
   ) {
-    console.log("add new item 1s");
+   // console.log("add new item 1s");
 
   }
 
   ngOnInit(): void {
-    console.log("activatedRoute",this.activatedRoute);
+    console.log("activatedRoute", this.activatedRoute);
     this.activatedRoute.params.subscribe((params: Params) => {
       let name = params['name'];
       let item = params['item'];
@@ -46,14 +46,13 @@ export class ModelEditComponent implements OnInit {
             let prop = results.properties[property];
             prop['itemSelf'] = item + '/' + prop.name;
             this.tabs.push(prop);
-            console.log("prop", prop);
+            //console.log("prop", prop);
 
           }
           if (results.properties[property].iggnoreOnRead && results.properties[property].iggnoreOnRead === true) {
             this.propertyVisible = false;
           }
-          // console.log(results.properties[property]);
-          //console.log(results);
+
 
           let modelData: FieldDataType = new FieldDataType();
           modelData.name = results.properties[property].name;
@@ -68,26 +67,22 @@ export class ModelEditComponent implements OnInit {
 
       this.modleService.getTabData(item).subscribe(data => {
         this.modelData = data;
-/*        if(){
-
-        }*/
         this.tabData = this.modelData;
+
       });
 
     });
 
-    console.log("this.tabData ", this.tabData);
-
   } // End  ngOnInit(): void 
 
   switchTab(event: any) {
+    let index = event.index;
     this.tabData = {};
 
-    if (event.tab.textLabel === 'basic') {
+    if (event.tab.textLabel === 'BASIC') {
       this.tabData = this.modelData;
     } else {
-      this.dataLink = this.modelData._links[event.tab.textLabel].href;
-
+      this.dataLink = this.modelData._links[this.tabs[index - 1].name].href;
       this.modleService.getTabData(this.dataLink).subscribe(res => {
         this.tabData = res._embedded;
         //console.log("resresres",res);

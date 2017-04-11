@@ -23,7 +23,7 @@ const routes: Routes = [
     path: 'Models/edit/:name/:item', component: ModelEditComponent // Edit Model data route
   },
   {
-    path: 'Models/add/:name', component: ModelEditComponent // Edit Model data route
+    path: 'Models/add/:name/:item', component: ModelEditComponent // Edit Model data route
   }
 
 ];
