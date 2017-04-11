@@ -1,5 +1,5 @@
 <md-tab-group #tabgroup (selectChange)="switchTab($event)">
-  <md-tab label="basic">
+  <md-tab label="BASIC">
     <md-card class="demo-card demo-basic" >
 
       <md-card-content>
@@ -36,7 +36,7 @@
     </md-card>
 
   </md-tab>
-  <md-tab *ngFor="let tab of tabs" label="{{tab.name.toUpperCase()}}">
+  <md-tab *ngFor="let tab of tabs" label="{{tab.name.toUpperCase()}}" id="{{tab.name}}">
     <md-card class="demo-card demo-basic">
       <app-model-data [customEndPoint]="tab.itemSelf" [customModel]="tab.reference" ></app-model-data>
     </md-card>
