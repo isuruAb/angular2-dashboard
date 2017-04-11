@@ -31,11 +31,13 @@ export class ModelEditComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log("activatedRoute", this.activatedRoute);
+
     this.activatedRoute.params.subscribe((params: Params) => {
       let name = params['name'];
       let item = params['item'];
+      console.log("item here", item);
 
+      console.log("paramsparams", params['name']);
       this.http.get(this.baseUrl + name).subscribe((res: Response) => {
         let results = res.json();
         //console.log("results.properties",results.properties);
@@ -46,13 +48,12 @@ export class ModelEditComponent implements OnInit {
             let prop = results.properties[property];
             prop['itemSelf'] = item + '/' + prop.name;
             this.tabs.push(prop);
-            //console.log("prop", prop);
 
+            console.log("prop", prop);
           }
           if (results.properties[property].iggnoreOnRead && results.properties[property].iggnoreOnRead === true) {
             this.propertyVisible = false;
           }
-
 
           let modelData: FieldDataType = new FieldDataType();
           modelData.name = results.properties[property].name;
@@ -63,7 +64,7 @@ export class ModelEditComponent implements OnInit {
         } //End for (let property in results.properties)
 
       });
-      //   console.log(this.tabs);
+
 
       this.modleService.getTabData(item).subscribe(data => {
         this.modelData = data;
@@ -71,6 +72,12 @@ export class ModelEditComponent implements OnInit {
 
       });
 
+      if (item !== "") {
+        this.modleService.getTabData(item).subscribe(data => {
+          this.modelData = data;
+          this.tabData = this.modelData;
+        });
+      } //End  if (item !== "")
     });
 
   } // End  ngOnInit(): void 

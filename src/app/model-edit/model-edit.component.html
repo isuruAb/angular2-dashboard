@@ -36,7 +36,10 @@
     </md-card>
 
   </md-tab>
+
   <md-tab *ngFor="let tab of tabs" label="{{tab.name.toUpperCase()}}" id="{{tab.name}}">
+
+
     <md-card class="demo-card demo-basic">
       <app-model-data [customEndPoint]="tab.itemSelf" [customModel]="tab.reference" ></app-model-data>
     </md-card>
