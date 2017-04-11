@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Http, Response, Headers, RequestOptions } from '@angular/http';
+import { Http, Response, Headers, RequestOptions, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Rx';
 import { FieldDataType } from '../models/core/FieldDataType';
 import { ModelService } from '../all-models/model.service';
 
@@ -10,7 +11,7 @@ import { ModelService } from '../all-models/model.service';
   templateUrl: './model-edit.component.html',
   styleUrls: ['./model-edit.component.css']
 })
-export class ModelEditComponent implements OnInit {
+export class ModelEditComponent implements OnInit, OnDestroy {
   private modelData: any = {};
   baseUrl: string = 'api/model/'
   private arrayOfKeys;
@@ -20,26 +21,34 @@ export class ModelEditComponent implements OnInit {
   private tabData: any = {};
   private propertyVisible: boolean = true;
   dataLink: string;
+  private subscription: Subscription;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private http: Http,
-    private modleService: ModelService
+    private modleService: ModelService,
+    private route: ActivatedRoute
   ) {
-   // console.log("add new item 1s");
 
   }
 
   ngOnInit(): void {
 
-    this.activatedRoute.params.subscribe((params: Params) => {
+    console.log("activatedRoute", this.activatedRoute);
+
+    this.subscription = this.activatedRoute.params.subscribe((params: Params) => {
       let name = params['name'];
       let item = params['item'];
-      console.log("item here", item);
+      this.modelData = {};
+      this.tabData = {};
+      this.tabs = [];
+      this.fieldDataTypes = [];
+
 
       console.log("paramsparams", params['name']);
       this.http.get(this.baseUrl + name).subscribe((res: Response) => {
         let results = res.json();
+
         //console.log("results.properties",results.properties);
         for (let property in results.properties) {
           this.propertyVisible = true;
@@ -63,14 +72,17 @@ export class ModelEditComponent implements OnInit {
           this.fieldDataTypes.push(modelData);
         } //End for (let property in results.properties)
 
-      });
 
-
-      this.modleService.getTabData(item).subscribe(data => {
-        this.modelData = data;
-        this.tabData = this.modelData;
+        this.modleService.getTabData(item).subscribe(data => {
+          this.modelData = data;
+          this.tabData = this.modelData;
 
       });
+
+        });
+
+      });
+      //   console.log(this.tabs);
 
       if (item !== "") {
         this.modleService.getTabData(item).subscribe(data => {
@@ -78,9 +90,12 @@ export class ModelEditComponent implements OnInit {
           this.tabData = this.modelData;
         });
       } //End  if (item !== "")
-    });
 
   } // End  ngOnInit(): void 
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe;
+  }
 
   switchTab(event: any) {
     let index = event.index;
@@ -108,7 +123,10 @@ export class ModelEditComponent implements OnInit {
     this.modleService.saveTabData(tabData._links.self.href, body, options)
       .subscribe();
   } //End saveModel(tabData: any): void
-
+​
+82
+​
+83
 
 
 }
