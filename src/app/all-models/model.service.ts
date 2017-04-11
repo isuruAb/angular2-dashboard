@@ -27,6 +27,7 @@ export class ModelService {
 
   getModel(name: string, customModel: string): Observable<Model> {
 
+
     if (customModel) {
       return this.http.get(this.modelsUrl + customModel).map((res: Response) => res.json());
 
@@ -42,18 +43,24 @@ export class ModelService {
 
     //when retrieving data from custom endpoint
     if (customEndPoint) {
-      return this.http.get(customEndPoint)
+
+      console.log("customEndPointcustomEndPoint", customEndPoint);
+      return this.http.get(customEndPoint, { search: searchParams })
         .map((res: Response) => res.json())
         .map(d => {
           get.results = d;
+          console.log("get from results", get);
+
           return get
         });
     }
     else {
+
       return this.http.get(get.model.endPoint, { search: searchParams })
         .map((res: Response) => res.json())
         .map(d => {
           get.results = d;
+ console.log("get from results2", get);
           return get
         });
     }
@@ -105,11 +112,12 @@ export class ModelService {
     return Observable.of(get);
   } // End _preRequest()
 
-//Tab services here
+  //Tab services here
   getModelData(name: string, params: Map<string, string>,
     searchParams: URLSearchParams,
     customEndPoint: string,
     customModel: string): Observable<GetRequest> {
+    console.log("customModel fro mservice", customModel);
 
     return this.getModel(name, customModel)
       .switchMap(model => this._preRequest(model, params))
@@ -118,10 +126,10 @@ export class ModelService {
   } //End getModelData().
 
   getTabData(dataLink) {
-    return this.http.get(dataLink).map(m=>m.json())
+    return this.http.get(dataLink).map(m => m.json())
   }//End getTabData()
 
-  saveTabData(patchUrl:string,requestBody:string,reqquestOptions:RequestOptions){
+  saveTabData(patchUrl: string, requestBody: string, reqquestOptions: RequestOptions) {
     return this.http.patch(patchUrl, requestBody, reqquestOptions)
       .map((res: Response) => res.json())
       .catch((error: any) => Observable.throw(error.json().error || 'Server error'));

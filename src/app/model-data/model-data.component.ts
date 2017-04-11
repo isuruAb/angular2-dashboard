@@ -46,8 +46,26 @@ export class ModelDataComponent implements OnInit {
         private activatedRoute: ActivatedRoute,
         private router: Router,
         private http: Http) {
-
     } // End constructor 
+
+
+
+    ngOnInit(): void {
+
+        this.activatedRoute.params.subscribe((params: Params) => {
+            this.params = params; //get all params to  this.params
+            // Get the model Name in URL.
+            this.modelName = params['name'];
+            console.log("this.size",this.size);
+
+
+            // initial search params
+            this.searchParams.set('size', this.size + '');
+            this.doGet();
+        });//End this.activatedRoute.params.subscribe
+
+        this.filter();
+    }//End  ngOnInit()
 
     edit(item) {
 
@@ -58,34 +76,35 @@ export class ModelDataComponent implements OnInit {
             this.router.navigate(['/Models/edit', this.modelName, item]);
 
         }
-
-
     } //edit(item)  Ends
 
     add() {
-        
         if (this.params['item']) {
-            this.router.navigate(['Models/add', this.customModel]); 
-
+            this.router.navigate(['Models/add', this.customModel]);
         } else {
-            this.router.navigate(['Models/add', this.modelName]);
+            this.router.navigate(['Models/add', this.modelName, ""]);
         }
-
     } //add() Ends
 
     doGet() {
-        //  console.log("this.customEndPoint",this.customEndPoint);
+          console.log("this.searchParams",this.searchParams);
 
         this.modleService.getModelData(this.modelName,
             null,
             this.searchParams,
             this.customEndPoint,
             this.customModel).subscribe(getRequest => {
+                console.log("this.pageSize22",getRequest.results);
                 if (getRequest.results.page) {
                     // Set page options
                     this.pageSize = getRequest.results.page.size;
-
+                    console.log("this.pageSize",this.pageSize);
+                    
                     this.totalElements = getRequest.results.page.totalElements;
+                }
+                else{
+                    this.totalElements=getRequest.results._embedded[Object.keys(getRequest.results._embedded)[0]].length;
+                    this.pageSize=this.size;
                 }
 
                 // Get data
@@ -103,23 +122,6 @@ export class ModelDataComponent implements OnInit {
                 this.filter();
             });
     }// End doGet()
-
-    ngOnInit(): void {
-
-        this.activatedRoute.params.subscribe((params: Params) => {
-            this.params = params; //get all params to  this.params
-            // Get the model Name in URL.
-            this.modelName = params['name'];
-
-
-            // initial search params
-            this.searchParams.set('size', this.size + '');
-            this.doGet();
-        });//End this.activatedRoute.params.subscribe
-
-        this.filter();
-    }//End  ngOnInit()
-
 
     sort(sortEvent: ITdDataTableSortChangeEvent): void {
         this.sortBy = sortEvent.name;
@@ -146,6 +148,7 @@ export class ModelDataComponent implements OnInit {
         let newData: any[] = this.currentData;
 
         newData = this._dataTableService.filterData(newData, this.searchTerm, true);
+console.log(" this.pageSize fro model-data", this.pageSize);
 
         newData = this._dataTableService.sortData(newData, this.sortBy, this.sortOrder);
         this.filteredData = this._dataTableService.pageData(newData, this.fromRow, this.currentPage * this.pageSize);
