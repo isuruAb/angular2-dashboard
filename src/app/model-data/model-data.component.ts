@@ -22,7 +22,7 @@ export class ModelDataComponent implements OnInit {
     searchTerm: string = '';
     fromRow: number = 1;
     currentPage: number = 1;
-    pageSize: number = 5;
+    //pageSize: number = 5;
     sortBy: string = 'id';
     sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Descending;
     currentData: any[] = [];
@@ -35,6 +35,7 @@ export class ModelDataComponent implements OnInit {
     searchParams: URLSearchParams = new URLSearchParams();
     modelName = null;
     params: Object;
+    pageSize: number =10;
     @Input('customEndPoint') customEndPoint: string;
     @Input('customModel') customModel: string;
 
@@ -56,7 +57,6 @@ export class ModelDataComponent implements OnInit {
             this.params = params; //get all params to  this.params
             // Get the model Name in URL.
             this.modelName = params['name'];
-            console.log("this.size",this.size);
 
 
             // initial search params
@@ -79,7 +79,7 @@ export class ModelDataComponent implements OnInit {
 
     add() {
         if (this.params['item']) {
-            this.router.navigate(['Models/add', this.customModel]);
+            this.router.navigate(['Models/add', this.customModel,this.params['item']]);
         } else {
             this.router.navigate(['Models/add', this.modelName, ""]);
         }
@@ -103,7 +103,7 @@ export class ModelDataComponent implements OnInit {
                 }
                 else{
                     this.totalElements=getRequest.results._embedded[Object.keys(getRequest.results._embedded)[0]].length;
-                    this.pageSize=this.size;
+                   // this.pageSize=this.size;
                 }
 
                 // Get data
@@ -147,7 +147,6 @@ export class ModelDataComponent implements OnInit {
         let newData: any[] = this.currentData;
 
         newData = this._dataTableService.filterData(newData, this.searchTerm, true);
-console.log(" this.pageSize fro model-data", this.pageSize);
 
         newData = this._dataTableService.sortData(newData, this.sortBy, this.sortOrder);
         this.filteredData = this._dataTableService.pageData(newData, this.fromRow, this.currentPage * this.pageSize);

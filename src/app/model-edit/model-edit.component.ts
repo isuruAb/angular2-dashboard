@@ -4,6 +4,7 @@ import { Http, Response, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 import { FieldDataType } from '../models/core/FieldDataType';
 import { ModelService } from '../all-models/model.service';
+import { ModelResource } from '../models/core/ModelResource';
 
 @Component({
   selector: 'app-model-edit',
@@ -20,14 +21,15 @@ export class ModelEditComponent implements OnInit {
   private tabData: any = {};
   private propertyVisible: boolean = true;
   dataLink: string;
-
+  item: any;
+  name: string;
+  postReqUrl: string;
   constructor(
     private activatedRoute: ActivatedRoute,
     private http: Http,
-    private modleService: ModelService
+    private modleService: ModelService,
+    private router: Router
   ) {
-   // console.log("add new item 1s");
-
   }
 
   ngOnInit(): void {
@@ -35,21 +37,22 @@ export class ModelEditComponent implements OnInit {
     this.activatedRoute.params.subscribe((params: Params) => {
       let name = params['name'];
       let item = params['item'];
-      console.log("item here", item);
+      this.item = item;
+      this.name = name;
+      console.log("name here", name);
 
-      console.log("paramsparams", params['name']);
       this.http.get(this.baseUrl + name).subscribe((res: Response) => {
         let results = res.json();
-        //console.log("results.properties",results.properties);
+
         for (let property in results.properties) {
           this.propertyVisible = true;
 
           if (results.properties[property].type === "set") {
             let prop = results.properties[property];
             prop['itemSelf'] = item + '/' + prop.name;
+
             this.tabs.push(prop);
 
-            console.log("prop", prop);
           }
           if (results.properties[property].iggnoreOnRead && results.properties[property].iggnoreOnRead === true) {
             this.propertyVisible = false;
@@ -78,6 +81,14 @@ export class ModelEditComponent implements OnInit {
           this.tabData = this.modelData;
         });
       } //End  if (item !== "")
+      else {
+        this.modleService.getModel(name, "").subscribe(data => {
+          this.http.get(data.endPoint).subscribe((m: any) => {
+            this.postReqUrl = m.json()._links.self.href;
+          });
+        });
+      }
+
     });
 
   } // End  ngOnInit(): void 
@@ -92,21 +103,29 @@ export class ModelEditComponent implements OnInit {
       this.dataLink = this.modelData._links[this.tabs[index - 1].name].href;
       this.modleService.getTabData(this.dataLink).subscribe(res => {
         this.tabData = res._embedded;
-        //console.log("resresres",res);
-
       });
-
     }//End Else
+
   }//End switchTab(event: any)
 
-  saveModel(tabData: any): void {
 
+  saveModel(tabData: any): void {
     let body = JSON.stringify(tabData);
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
+    let reqType: string = "patch";
+    if (this.item === "") {
+      // console.log("here we are");
+      reqType = "post";
+      this.modleService.saveTabData(this.postReqUrl, body, options, reqType)
+        .subscribe();
+      this.router.navigate(['Models/', this.name]);
+    }
+    else {
+      this.modleService.saveTabData(tabData._links.self.href, body, options, reqType)
+        .subscribe();
+    }
 
-    this.modleService.saveTabData(tabData._links.self.href, body, options)
-      .subscribe();
   } //End saveModel(tabData: any): void
 
 

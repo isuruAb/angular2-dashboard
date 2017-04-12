@@ -60,7 +60,7 @@ export class ModelService {
         .map((res: Response) => res.json())
         .map(d => {
           get.results = d;
- console.log("get from results2", get);
+          console.log("get from results2", get);
           return get
         });
     }
@@ -129,10 +129,19 @@ export class ModelService {
     return this.http.get(dataLink).map(m => m.json())
   }//End getTabData()
 
-  saveTabData(patchUrl: string, requestBody: string, reqquestOptions: RequestOptions) {
-    return this.http.patch(patchUrl, requestBody, reqquestOptions)
-      .map((res: Response) => res.json())
-      .catch((error: any) => Observable.throw(error.json().error || 'Server error'));
+  saveTabData(patchUrl: string, requestBody: string, reqquestOptions: RequestOptions, method: string) {
+    if (method === "patch") {
+      return this.http.patch(patchUrl, requestBody, reqquestOptions)
+        .map((res: Response) => res.json())
+        .catch((error: any) => Observable.throw(error.json().error || 'Server error'));
+    }
+    else {
+      console.log("patchUrl", patchUrl);
+      return this.http.post(patchUrl, requestBody, reqquestOptions)
+        .map((res: Response) => res.json())
+        .catch((error: any) => Observable.throw(error.json().error || 'Server error'));;
+    }
+
   }
 
 }
