@@ -68,12 +68,13 @@ export class ModelDataComponent implements OnInit {
     }//End  ngOnInit()
 
     edit(item) {
-        //console.log(item);
+
         if (this.params['item']) {
-            console.log("itemitemitemitemitemitemitemitemitem", item);
-            this.router.navigate(['Models/edit', this.customModel, item]); //problem here 
+            this.router.navigate(['/Models/edit', this.customModel, item]);//problem here 
+
         } else {
-            this.router.navigate(['Models/edit', this.modelName, item]);
+            this.router.navigate(['/Models/edit', this.modelName, item]);
+
         }
     } //edit(item)  Ends
 
