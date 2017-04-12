@@ -33,7 +33,8 @@ export class ModelEditComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log("activatedRoute", this.activatedRoute);
+
+    //console.log("activatedRoute", this.activatedRoute);
 
     this.subscription = this.activatedRoute.params.subscribe((params: Params) => {
       let name = params['name'];
@@ -43,6 +44,8 @@ export class ModelEditComponent implements OnInit, OnDestroy {
       this.tabs = [];
       this.fieldDataTypes = [];
 
+
+     // console.log("paramsparams", params['name']);
       this.http.get(this.baseUrl + name).subscribe((res: Response) => {
         let results = res.json();
 
@@ -54,8 +57,8 @@ export class ModelEditComponent implements OnInit, OnDestroy {
             let prop = results.properties[property];
             prop['itemSelf'] = item + '/' + prop.name;
             this.tabs.push(prop);
-            //console.log("prop", prop);
 
+           // console.log("prop", prop);
           }
           if (results.properties[property].iggnoreOnRead && results.properties[property].iggnoreOnRead === true) {
             this.propertyVisible = false;
@@ -69,17 +72,19 @@ export class ModelEditComponent implements OnInit, OnDestroy {
           this.fieldDataTypes.push(modelData);
         } //End for (let property in results.properties)
 
+
         this.modleService.getTabData(item).subscribe(data => {
           this.modelData = data;
           this.tabData = this.modelData;
 
         });
 
+
+
       });
-      //   console.log(this.tabs);
 
     });
-
+    //   console.log(this.tabs);
 
   } // End  ngOnInit(): void 
 
