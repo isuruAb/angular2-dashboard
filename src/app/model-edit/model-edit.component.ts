@@ -34,7 +34,7 @@ export class ModelEditComponent implements OnInit, OnDestroy {
     private http: Http,
     private modleService: ModelService,
     private router: Router
-    private route: ActivatedRoute
+
   ) {
 
   }
@@ -89,8 +89,6 @@ export class ModelEditComponent implements OnInit, OnDestroy {
 
         });
 
-      });
-      //   console.log(this.tabs);
 
       if (item !== "") {
         this.modleService.getTabData(item).subscribe(data => {
