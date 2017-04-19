@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs/Rx';
 import { FieldDataType } from '../models/core/FieldDataType';
 import { ModelService } from '../all-models/model.service';
 import { ModelResource } from '../models/core/ModelResource';
+import { BasicObject } from '../models/BasicObject';
 
 @Component({
   selector: 'app-model-edit',
@@ -19,9 +20,14 @@ export class ModelEditComponent implements OnInit, OnDestroy {
   private modelProperties: Array<any>;
   private fieldDataTypes: FieldDataType[] = [];
   private tabs: any[] = [];
+  private basicObjects: any[] = [];
+  private basicObjectNames: string[] = [];
+  private allItemsObject: any[] = [];
   private tabData: any = {};
   private propertyVisible: boolean = true;
   dataLink: string;
+  private basicObjectModel: BasicObject;
+  private ObjectTitle;
 
   item: any;
   name: string;
@@ -60,13 +66,19 @@ export class ModelEditComponent implements OnInit, OnDestroy {
 
         for (let property in results.properties) {
           this.propertyVisible = true;
+          //console.log("Result properties", results.properties[property]);
 
           if (results.properties[property].type === "set") {
             let prop = results.properties[property];
             prop['itemSelf'] = item + '/' + prop.name;
-
             this.tabs.push(prop);
+          }
+          if (results.properties[property].type === "object") {
+            let object = results.properties[property];
+            let objectName = object.name;
+            this.basicObjectNames.push(objectName);
 
+            // console.log("prop", prop);
           }
           if (results.properties[property].iggnoreOnRead && results.properties[property].iggnoreOnRead === true) {
             this.propertyVisible = false;
@@ -82,12 +94,37 @@ export class ModelEditComponent implements OnInit, OnDestroy {
 
 
         this.modleService.getTabData(item).subscribe(data => {
+          if (this.basicObjectNames.length > 0) {
+
+            for (let basicObjectName of this.basicObjectNames) {
+
+              this.modleService.getTabData(data._links[basicObjectName].href).subscribe(basicObject => {
+                let tittle = this.upperCaseFirst(basicObjectName);
+
+                this.http.get(this.baseUrl + tittle).subscribe((res: Response) => {
+                  this.ObjectTitle = res.json().title;
+
+                  this.basicObjectModel = {
+                    name: basicObjectName,
+                    objectss: basicObject,
+                    objectTittles: this.ObjectTitle
+                  }
+                  this.ObjectTitle = {};
+                  this.basicObjects.push(this.basicObjectModel)
+                  //console.log("Basic Objects", this.basicObjects);
+                });
+
+              });
+            }
+
+          }
           this.modelData = data;
           this.tabData = this.modelData;
 
-      });
 
         });
+
+      });
 
 
       if (item !== "") {
@@ -108,6 +145,10 @@ export class ModelEditComponent implements OnInit, OnDestroy {
     });
 
   } // End  ngOnInit(): void 
+
+  upperCaseFirst(s: string): string {
+    return s[0].toUpperCase() + s.slice(1);
+  }
 
   ngOnDestroy() {
     this.subscription.unsubscribe;

@@ -1,9 +1,9 @@
 <md-tab-group #tabgroup (selectChange)="switchTab($event)">
   <md-tab label="BASIC">
-    <md-card class="demo-card demo-basic" >
+    <md-card class="demo-card demo-basic" class="container">
 
-      <md-card-content>
-        <div fxLayout="column" class="content" *ngFor="let property of fieldDataTypes">
+      <md-card-content fxLayout="row" fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap="30px" class="content">
+        <div *ngFor="let property of fieldDataTypes">
           <div fxFlex>
             <md-input-container *ngIf="property.dataType === 'text' && property.ignore">
               <input mdInput placeholder="{{property.name}}" [(ngModel)]="tabData[property.name]">
@@ -19,20 +19,28 @@
               <input mdInput placeholder="{{property.name}}" type="date" [(ngModel)]="tabData[property.name]">
             </md-input-container>
           </div>
-          <div *ngIf="property.dataType === 'boolean' && property.ignore" class="row">
-            <div class="col-md-4">
-              {{property.name}}
-            </div>
-            <div class="col-md-4">
-              <md-slide-toggle [checked]="tabData[property.name]" [(ngModel)]="tabData[property.name]"></md-slide-toggle>
+          <div fxFlex *ngIf="property.dataType === 'boolean' && property.ignore">
+            <div>
+              <md-slide-toggle labelPosition="before" [checked]="tabData[property.name]" [(ngModel)]="tabData[property.name]">{{property.name}}</md-slide-toggle>
             </div>
           </div>
         </div>
-        <div align="right">
-          <button md-fab (click)="saveModel(tabData)"><md-icon>save</md-icon></button>
+      </md-card-content>
+      <md-card-content fxLayout="row" fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap="10px">
+        <div class="content" *ngFor="let basicObject of basicObjects">
+          <md-input-container>
+            <md-icon>home</md-icon>
+            <input mdInput placeholder="{{basicObject.name}}" type="text" value="{{basicObject.objectss[basicObject.objectTittles]}}">
+          </md-input-container>
         </div>
 
       </md-card-content>
+      <md-card-content>
+        <div align="right">
+          <button md-fab (click)="saveModel(tabData)"><md-icon>save</md-icon></button>
+        </div>
+      </md-card-content>
+
     </md-card>
 
   </md-tab>

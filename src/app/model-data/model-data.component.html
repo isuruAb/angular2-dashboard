@@ -16,11 +16,11 @@
 
 <td-data-table #dataTable [data]="filteredData" [columns]="columns" [sortable]="true" [sortBy]="sortBy" [sortOrder]="sortOrder"
   (sortChange)="sort($event)">
-  <template tdDataTableTemplate="edit" let-value="value" let-row="row" let-column="column">
+  <ng-template tdDataTableTemplate="edit" let-value="value" let-row="row" let-column="column">
     <div layout="row">
       <button md-icon-button (click)="edit(value)"><md-icon>edit</md-icon></button>
     </div>
-  </template>
+  </ng-template>
 </td-data-table>
 
 <td-paging-bar #pagingBar [pageSize]="size" [pageSizes]="[5, 10, 15, 20,50]" [total]="totalElements" (change)="page($event)">
