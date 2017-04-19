@@ -8,7 +8,7 @@ import { ModelService } from './all-models/model.service';
 
 const routes: Routes = [
   {
-    path: '', redirectTo: 'Models' , pathMatch: 'full' 
+    path: '', redirectTo: 'Models', pathMatch: 'full'
   },
   {
     path: 'Models', component: AllModelsComponent

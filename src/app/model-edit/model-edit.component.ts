@@ -34,7 +34,11 @@ export class ModelEditComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
+<<<<<<< HEAD
     //console.log("activatedRoute", this.activatedRoute);
+=======
+    console.log("activatedRoute", this.activatedRoute);
+>>>>>>> b1cd0eaf0dc57211e2a72588f2202cc52a08c9d5
 
     this.subscription = this.activatedRoute.params.subscribe((params: Params) => {
       let name = params['name'];
@@ -45,7 +49,11 @@ export class ModelEditComponent implements OnInit, OnDestroy {
       this.fieldDataTypes = [];
 
 
+<<<<<<< HEAD
      // console.log("paramsparams", params['name']);
+=======
+      console.log("paramsparams", params['name']);
+>>>>>>> b1cd0eaf0dc57211e2a72588f2202cc52a08c9d5
       this.http.get(this.baseUrl + name).subscribe((res: Response) => {
         let results = res.json();
 
@@ -58,7 +66,11 @@ export class ModelEditComponent implements OnInit, OnDestroy {
             prop['itemSelf'] = item + '/' + prop.name;
             this.tabs.push(prop);
 
+<<<<<<< HEAD
            // console.log("prop", prop);
+=======
+            console.log("prop", prop);
+>>>>>>> b1cd0eaf0dc57211e2a72588f2202cc52a08c9d5
           }
           if (results.properties[property].iggnoreOnRead && results.properties[property].iggnoreOnRead === true) {
             this.propertyVisible = false;
@@ -77,14 +89,25 @@ export class ModelEditComponent implements OnInit, OnDestroy {
           this.modelData = data;
           this.tabData = this.modelData;
 
+      });
+
         });
 
 
 
       });
 
+<<<<<<< HEAD
     });
     //   console.log(this.tabs);
+=======
+      if (item !== "") {
+        this.modleService.getTabData(item).subscribe(data => {
+          this.modelData = data;
+          this.tabData = this.modelData;
+        });
+      } //End  if (item !== "")
+>>>>>>> b1cd0eaf0dc57211e2a72588f2202cc52a08c9d5
 
   } // End  ngOnInit(): void 
 
@@ -118,6 +141,10 @@ export class ModelEditComponent implements OnInit, OnDestroy {
     this.modleService.saveTabData(tabData._links.self.href, body, options)
       .subscribe();
   } //End saveModel(tabData: any): void
+​
+82
+​
+83
 
 
 }
